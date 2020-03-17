@@ -1,0 +1,46 @@
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+
+public class main {
+    public static void main(String[] args){
+        String url="https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5";
+        String result="";
+        BufferedReader in=null;
+        try{
+            URL realUrl=new URL(url);
+            URLConnection connection=realUrl.openConnection();
+            connection.connect();
+            in=new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            while((line=in.readLine())!=null){
+                result+=line+"\n";
+            }
+
+        }catch(Exception e){
+            System.out.println("发送GET请求出现异常"+e);
+            e.printStackTrace();
+        }
+        finally{
+            try
+            {
+                if(in!=null){
+                    in.close();
+                }
+            }catch(Exception e2){
+                e2.printStackTrace();
+            }
+        }
+        result=result.replace("{","{\n");
+        result=result.replace(",",",\n");
+        result=result.replace("\\","");
+        //JSONObject context= JSON.parseObject(result);
+        //String pretty=JSON.toJSONString(context, SerializerFeature.PrettyFormat,SerializerFeature.WriteMapNullValue,SerializerFeature.WriteDateUseDateFormat);
+        System.out.print(result);
+    }
+}
