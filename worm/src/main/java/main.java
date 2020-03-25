@@ -1,6 +1,7 @@
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import jdk.management.resource.internal.TotalResourceContext;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -46,7 +47,6 @@ public class main {
             }
         }
 
-
         //这部分为可视化处理
 
         result=result.replace("]","]\n");
@@ -54,12 +54,15 @@ public class main {
         //result=result.replace(",",",\n");
         result=result.replace("\"","");
 
+        String jsonObject="{\n\"result\":[\n";
 
         //下面这部分为过滤出来国外的情况
 
-        Pattern foreignCountry =Pattern.compile("id:(.*?).json},");
+        Pattern foreignCountry =Pattern.compile("id:(.*?)showRank");
 
         Matcher foreignMatcher=foreignCountry.matcher(result);
+
+        //System.out.println(result);
 
 
         System.out.println("以下为世界疫情汇总:\n");
@@ -67,7 +70,10 @@ public class main {
 
         while(foreignMatcher.find()){
 
+
             String Foreign=foreignMatcher.group(0);
+
+            String ContinentId=Foreign.substring(3,Foreign.indexOf(','));
 
             Foreign=Foreign.substring(Foreign.indexOf("continents"));
 
@@ -108,13 +114,16 @@ public class main {
             String CountryFullName=Foreign.substring(16,Foreign.indexOf(','));
 
 
-            System.out.println("所属大陆:"+Continent+" \t国家名称:"+CountryName+" \t今日感染:"+CountryTodayConfirmed+" \t总共感染:"+CountryTotally+" \t疑似病例:"+CountrySuspect+" \t治愈病列:"+CountryCure
-            +" \t死亡病例:"+CountryDead+" \t城市代码:"+CountryCode+" \t城市全称:"+CountryFullName);
+            //System.out.println("所属大陆:"+Continent+" \t国家名称:"+CountryName+" \t今日感染:"+CountryTodayConfirmed+" \t总共感染:"+CountryTotally+" \t疑似病例:"+CountrySuspect+" \t治愈病列:"+CountryCure
+            //+" \t死亡病例:"+CountryDead+" \t城市代码:"+CountryCode+" \t城市全称:"+CountryFullName);
+
+            jsonObject=jsonObject+"{\n\"locationId\":"+ContinentId+",\n\"continentName\":\""+Continent+"\",\n\"countryName\":\""+CountryName+"\",\n\"provinceName\":\""+CountryName+"\",\n\"privinceShortName\":\""+CountryName+"\",\n\"currentConfirmedCount\":"+CountryTodayConfirmed+",\n\"confirmedCount\":"+
+            CountryTotally+",\n\"suspectedCount\":"+CountrySuspect+",\n\"curedCount\":"+CountryCure+",\n\"deadCount\":"+CountryDead+",\n\"cities\":"+"null"+",\n\"comment\":\"\""+",\n},\n";
 
             //System.out.println(foreignMatcher.group(0));
         }
 
-
+        //System.out.println(jsonObject);
 
 
         //这部分为过滤出来国内的状态
@@ -126,7 +135,7 @@ public class main {
 
         ChinaMatcher.find();                            //此行的功能为为后面过滤掉非中国的地区
 
-        ChinaMatcher.find();
+        //ChinaMatcher.find();
 
 
         System.out.println("\n\n以下为国内各省份城市疫情汇总:\n");
@@ -143,9 +152,8 @@ public class main {
 
             String ProvinceName=ProvinceSituation.substring(13,ProvinceSituation.indexOf(','));
 
-            try {
 
-                String ProvinceTotally = ProvinceSituation.substring(0, ProvinceSituation.indexOf("comment"));
+                String ProvinceTotally = ProvinceSituation.substring(0, ProvinceSituation.indexOf("statisticsData"));
 
                 //System.out.println(ProvinceTotally);
 
@@ -171,19 +179,36 @@ public class main {
 
                 String ProvinceDead=ProvinceTotally.substring(10,ProvinceTotally.indexOf(','));
 
-                System.out.println("省份:"+ProvinceName+"\t 今日确诊:"+ProvinceTodayConfirmed+"\t 总共确诊:"
-                        +ProvinceTotallyConfirmed+"\t 疑似病例:"+ProvinceSuspectCount+"\t 治愈病列:"+ProvinceCured+
-                        "\t 死亡病例:"+ProvinceDead);
+                ProvinceTotally=ProvinceTotally.substring(ProvinceTotally.indexOf(',')+1);
 
-            }catch(Exception e){
-                System.out.println();
-            };
+                String ProvinceComment=ProvinceTotally.substring(8,ProvinceTotally.indexOf(','));
+
+                ProvinceTotally=ProvinceTotally.substring(ProvinceTotally.indexOf(',')+1);
+
+                String ProvinceId=ProvinceTotally.substring(11,ProvinceTotally.indexOf(','));
+
+                //System.out.println(ProvinceComment+" "+ProvinceId);
+
+                //ProvinceTotally=ProvinceTotally.substring(ProvinceTotally.indexOf(',')+1);
+
+
+                //System.out.println("省份:"+ProvinceName+"\t 今日确诊:"+ProvinceTodayConfirmed+"\t 总共确诊:"
+                       // +ProvinceTotallyConfirmed+"\t 疑似病例:"+ProvinceSuspectCount+"\t 治愈病列:"+ProvinceCured+
+                       // "\t 死亡病例:"+ProvinceDead);
+
+                jsonObject=jsonObject+"{\n"+"\"locationId\":"+ProvinceId+",\n\"continentName\":\"亚洲\",\n"+"\"countryName\":\"中国\",\n"+"\"provinceName\":\""+
+                        ProvinceName+"\",\n\"currentConfirmedCount\":"+ProvinceTodayConfirmed+",\n\"confirmedCount\":"+ProvinceTotally+",\n\"suspectedCount\":"+ProvinceSuspectCount+
+                        ",\n\"curedCount\":"+ProvinceCured+",\n\"deadCount\":"+ProvinceDead+"\n\"cities\":[";
+
+
             //System.out.println(ProvinceName);
 
 
             Pattern CitySituation=Pattern.compile("cityName(.*?)}");
 
             Matcher CitySituationMatcher=CitySituation.matcher(ProvinceSituation);
+
+
 
 
                 while (CitySituationMatcher.find()) {
@@ -214,21 +239,36 @@ public class main {
 
                     String deadCount=CityCondition.substring(10,CityCondition.indexOf(','));
 
+                    CityCondition=CityCondition.substring(CityCondition.indexOf(',')+1);
 
-                    System.out.println("省份:"+ProvinceName+"\t 城市:"+CityName+"\t 今日确诊:"+TodayConfirmed+"\t 总共确诊:"
-                            +TotallyConfirmed+"\t 疑似病例:"+suspectedCount+"\t 治愈病列:"+CuredCount+
-                            "\t 死亡病例:"+deadCount);
+                    String locationId=CityCondition.substring(11,CityCondition.indexOf('}'));
+
+                    //System.out.println(locationId);
+
+                   // System.out.println("省份:"+ProvinceName+"\t 城市:"+CityName+"\t 今日确诊:"+TodayConfirmed+"\t 总共确诊:"
+                            //+TotallyConfirmed+"\t 疑似病例:"+suspectedCount+"\t 治愈病列:"+CuredCount+
+                            //"\t 死亡病例:"+deadCount);
+
+                    jsonObject=jsonObject+"\n{\n"+"\"cityName\":\""+CityName+"\",\n\"currentConfirmedCount\":"+TodayConfirmed+
+                            ",\n\"confirmedCount\":"+ TotallyConfirmed+",\n\"suspectedCount\":"+suspectedCount+",\n\"curedCount\":"+
+                            CuredCount+",\n\"deadCount\":"+deadCount+",\n\"locationId\":"+locationId+",\n},";
 
                     //System.out.println("省份"+ProvinceName+" "+CitySituationMatcher.group(0));
                 }
 
+                jsonObject=jsonObject+"\n],\n\"comment\":\""+ProvinceComment+"\",\n},\n";
 
             //System.out.println(ChinaMatcher.group(0));
 
 
-            System.out.println("\n");
+            //System.out.println("\n");
         }
 
+        jsonObject=jsonObject.substring(0,jsonObject.length()-2);
+
+        jsonObject=jsonObject+"\n],\n\"success\":true\n}";
+
+        System.out.println(jsonObject);
 
     }
   /*  public static String regexString (String targetStr,String patternStr){
