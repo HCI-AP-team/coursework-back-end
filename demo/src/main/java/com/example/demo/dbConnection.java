@@ -220,9 +220,15 @@ public class dbConnection extends TimerTask {
                     String ProvinceName = ProvinceSituation.substring(13, ProvinceSituation.indexOf(','));
 
 
+
+
                     String ProvinceTotally = ProvinceSituation.substring(0, ProvinceSituation.indexOf("statisticsData"));
 
                     //System.out.println(ProvinceTotally);
+
+                    ProvinceTotally=ProvinceTotally.substring(ProvinceTotally.indexOf("provinceShortName"));
+
+                    String ProvinceShortName=ProvinceTotally.substring(18,ProvinceTotally.indexOf(','));
 
                     ProvinceTotally = ProvinceTotally.substring(ProvinceTotally.indexOf("currentConfirmedCount"));
 
@@ -269,6 +275,7 @@ public class dbConnection extends TimerTask {
                             "\"countryName\":\"中国\",\n" +
                             "\"countryEnglishName\":\""+map.countryEnglishName("中国")+"\",\n" +
                             "\"provinceName\":\"" + ProvinceName +
+                            "\",\n\"provinceShortName\":\"" + ProvinceShortName +
                             "\",\n\"provinceEnglishName\":\"" + map.provinceName(ProvinceName) +
                             "\",\n\"currentConfirmedCount\":" + ProvinceTodayConfirmed +
                             ",\n\"confirmedCount\":" + ProvinceTotallyConfirmed +
