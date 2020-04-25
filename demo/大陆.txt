@@ -1,0 +1,7 @@
+continentName":"大洋洲",continentEnglishName":"Oceania",
+continentName":"南美洲",continentEnglishName":"South America",
+continentName":"北美洲",continentEnglishName":"North America",
+continentName":"非洲",continentEnglishName":"Africa",
+continentName":"其他",continentEnglishName":"Others",
+continentName":"欧洲",continentEnglishName":"Europe",
+continentName":"亚洲",continentEnglishName":"Asia",

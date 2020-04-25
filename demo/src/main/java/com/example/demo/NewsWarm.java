@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NewsWarm {
-    public static void main(String[] args) {
+    public void news(String[] args) {
 
 
         //String url="https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5";    //此处为腾讯的接口
